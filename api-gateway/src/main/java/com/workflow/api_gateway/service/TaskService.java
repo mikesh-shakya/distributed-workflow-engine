@@ -11,6 +11,7 @@ import com.workflow.common.model.Task;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -64,6 +65,7 @@ public class TaskService {
         }
     }
 
+    @Transactional
     public TaskResponse getTaskByName(String taskName){
         Task task = taskRepository.findByTaskName(taskName)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found: " + taskName));

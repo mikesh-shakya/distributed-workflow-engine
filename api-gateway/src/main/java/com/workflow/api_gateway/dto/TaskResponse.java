@@ -1,10 +1,6 @@
 package com.workflow.api_gateway.dto;
 
 import com.workflow.common.enums.TaskStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Lob;
 import lombok.Builder;
 import lombok.Data;
 
