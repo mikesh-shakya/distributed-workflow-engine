@@ -22,4 +22,10 @@ public class TaskController {
         Task task = taskService.create_task(request);
         return ResponseEntity.ok(task);
     }
+
+    @GetMapping("/{task_id}")
+    public ResponseEntity<String> getTaskStatus(@PathVariable String task_id){
+        String status = taskService.get_task_status(task_id);
+        return ResponseEntity.ok(status);
+    }
 }

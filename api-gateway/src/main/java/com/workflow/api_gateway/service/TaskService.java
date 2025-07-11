@@ -6,10 +6,13 @@ import com.workflow.api_gateway.kafka.TaskProducer;
 import com.workflow.common.repository.TaskRepository;
 import com.workflow.common.enums.TaskStatus;
 import com.workflow.common.model.Task;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 public class TaskService {
 
     @Autowired
@@ -33,6 +36,18 @@ public class TaskService {
         taskRepository.save(task);
         taskProducer.sendTaskToQueue(id);
         return task;
+    }
+
+    public String get_task_status(String task_id_string){
+        UUID taskId = UUID.fromString(task_id_string);
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+
+        if (optionalTask.isEmpty()) {
+            log.warn("Task with ID {} not found", taskId);
+            return "No such task exists";
+        }
+        Task task = optionalTask.get();
+        return task.getStatus().toString();
     }
 
     private String toJson(Object obj) {
