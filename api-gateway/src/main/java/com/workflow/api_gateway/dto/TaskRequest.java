@@ -6,7 +6,7 @@ import java.util.Map;
 
 @Data
 public class TaskRequest {
-    private String task_name;
+    private String taskName;
     private Map<String, Object> payload;
     private int maxRetries = 3;
 }

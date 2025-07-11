@@ -1,0 +1,164 @@
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: workflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKER_CONNECT: kafka:9092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+
+  api-gateway:
+    image: eclipse-temurin:17-jdk
+    container_name: api-gateway
+    working_dir: /app
+    volumes:
+      - ../api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar:/app/app.jar
+    entrypoint: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  executor:
+    image: eclipse-temurin:17-jdk
+    container_name: executor
+    working_dir: /app
+    volumes:
+      - ../executor/target/executor-0.0.1-SNAPSHOT.jar:/app/app.jar
+    entrypoint: [ "java", "-jar", "app.jar" ]
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+
+#volumes:
+#  pgdata:
+
+
+#
+#services:
+#  postgres:
+#    image: postgres:17
+#    container_name: postgres
+#    environment:
+#      POSTGRES_DB: workflow
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#    ports:
+#      - "5432:5432"
+#
+#  kafka:
+#    image: bitnami/kafka:latest
+#    container_name: kafka
+#    ports:
+#      - "9092:9092"
+#    environment:
+#      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+#    depends_on:
+#      - zookeeper
+#
+#  zookeeper:
+#    image: bitnami/zookeeper:latest
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#
+#  executor:
+#    image: eclipse-temurin:17-jdk
+#    container_name: executor
+#    working_dir: /app
+#    volumes:
+#      - ../executor/target/executor-0.0.1-SNAPSHOT.jar:/app/app.jar
+#    entrypoint: ["java", "-jar", "app.jar"]
+#    depends_on:
+#      - kafka
+#      - postgres
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#
+#  api-gateway:
+#    image: eclipse-temurin:17-jdk
+#    container_name: api-gateway
+#    working_dir: /app
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - ../api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar:/app/app.jar
+#    entrypoint: ["java", "-jar", "app.jar"]
+#    depends_on:
+#      - kafka
+#      - postgres
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#
+#  kafdrop:
+#    image: obsidiandynamics/kafdrop
+#    container_name: kafdrop
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      KAFKA_BROKERCONNECT: kafka:9092
+#    depends_on:
+#      - kafka
+#
+#  adminer:
+#    image: adminer
+#    container_name: adminer
+#    ports:
+#      - "8081:8080"
+#    depends_on:
+#      - postgres

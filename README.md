@@ -51,18 +51,62 @@ workflow-engine/
 
 ## 🧑‍💻 How to Run Locally
 
-```bash
-# Clone the repo
-git clone https://github.com/<your-username>/distributed-workflow-engine.git
-cd distributed-workflow-engine
+> ⚠️ **Prerequisites**:
+> - Docker Desktop
+> - IntelliJ IDEA
+> - Java 17
+> - Maven
 
-# Build the project
+### 🔹 Step 1: Clone Repo
+
+```
+git clone https://github.com/your-username/distributed-workflow-engine.git
+cd distributed-workflow-engine
+```
+
+### 🔹 Step 2: Start Infrastructure
+
+```
+cd infra
+docker compose up -d
+```
+
+Starts the following services:
+
+> - Kafka → localhost:9092
+> - Zookeeper → localhost:2181
+> - PostgreSQL → localhost:5432
+> - Username: postgres
+> - Password: postgres
+
+### 🔹 Step 3: Build the project
 mvn clean install -DskipTests
 
-# Run API Gateway
+### 🔹 Step 4: Run Services
+▶️ Run API Gateway
+```
+Main class: com.workflow.apigateway.Application
+Port: 8080
 cd api-gateway
 mvn spring-boot:run
+```
 
-# Run Executor (in a new terminal)
+▶️ Run Executor (in a new terminal)
+```
+Main class: com.workflow.executor.Application
+Port: 8086
 cd ../executor
 mvn spring-boot:run
+```
+
+### 🔹 Step 5: Submit Task via Postman
+POST http://localhost:8080/tasks
+Headers:
+
+### 🔹 Step 6: Observe Task Execution
+Watch executor logs in IntelliJ — task should be:
+
+Processed
+Marked as COMPLETED or FAILED
+
+

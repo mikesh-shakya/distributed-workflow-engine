@@ -17,9 +17,9 @@ import java.util.UUID;
 public class Task {
     @Id
     @Column(nullable = false)
-    private UUID task_id;
+    private UUID taskId;
     @Column(nullable = false)
-    private String task_name;
+    private String taskName;
     @Lob
     @Column(columnDefinition = "TEXT")
     private String payload; // JSON as string...
